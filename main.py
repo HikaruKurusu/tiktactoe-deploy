@@ -41,37 +41,40 @@ def register():
     username = data.get('username')
     password = data.get('password')
 
+    # Basic validation
     if not username or not password:
         return jsonify({'message': 'Username and password are required'}), 400
 
+    if len(username) < 3 or len(password) < 6:
+        return jsonify({'message': 'Username must be at least 3 characters and password at least 6 characters'}), 400
+
+    # Check if username already exists
     if User.query.filter_by(username=username).first():
         return jsonify({'message': 'Username already exists'}), 400
 
+    # Hash password
     hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+    
+    # Create new user
     user = User(username=username, password=hashed_password)
     db.session.add(user)
     db.session.commit()
+    
     return jsonify({'message': 'User registered successfully'}), 201
-
-@app.route('/')
-def home():
-    return render_template('index.html')
-
 
 with app.app_context():
     db.create_all()
 
-    # Check if the user already exists
+    # Add a default test user if no user exists
     user = User.query.filter_by(username='testuser').first()
     if not user:
         hashed_password = bcrypt.generate_password_hash('password123').decode('utf-8')
         new_user = User(username='testuser', password=hashed_password)
         db.session.add(new_user)
         db.session.commit()
-        print("User added successfully!")
+        print("Test user added successfully!")
     else:
-        print("User already exists.")
+        print("Test user already exists.")
 
 if __name__ == '__main__':
-    app.run()
-    # debug=True
+    app.run(debug=True)
