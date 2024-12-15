@@ -27,7 +27,7 @@ const Login = () => {
       if (response.ok) {
         setMessage(`${isRegistering ? 'Registration' : 'Login'} successful!`);
         if (!isRegistering) {
-          navigate('/game'); // Redirect only after login
+          navigate('/search'); // Redirect only after login
         }
       } else {
         setMessage(data.message || 'An error occurred.');
