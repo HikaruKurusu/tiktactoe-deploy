@@ -11,6 +11,7 @@ const Game = () => {
   const [board, setBoard] = useState(Array(9).fill(null)); // Game board (9 squares)
   const [isXNext, setIsXNext] = useState(true); // Determine if it's X or O's turn
   const [winner, setWinner] = useState(null); // Winner state
+  const [opponent, setOpponent] = useState(''); // Opponent's username
 
   // Handle the game logic and WebSocket communication
   useEffect(() => {
@@ -20,6 +21,11 @@ const Game = () => {
       setBoard(data.board);
       setIsXNext(data.isXNext);
       checkWinner(data.board);
+    });
+
+    // Listen for the opponent's username
+    socket.on('opponent_info', (data) => {
+      setOpponent(data.opponent);
     });
 
     return () => {
@@ -70,7 +76,7 @@ const Game = () => {
 
   return (
     <div className="game-container">
-      <h1>Game Room: {room}</h1>
+      <h1>Opponent: {opponent}</h1>
       <div>
         {winner ? <h2>{winner} Wins!</h2> : <h2>Next player: {isXNext ? 'X' : 'O'}</h2>}
       </div>
