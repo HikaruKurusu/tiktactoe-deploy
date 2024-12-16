@@ -35,8 +35,11 @@ const Login = () => {
         
         // Save userID in localStorage
         const userID = data.id; // Extract userID from response
+        const storedUserID = localStorage.getItem('userID');
+        if (storedUserID) {
+          console.log('Stored userID:', storedUserID);
+        }
         localStorage.setItem('userID', userID); // Store userID in local storage
-
         // Redirect to search page after login
         if (!isRegistering) {
           navigate('/search'); 
