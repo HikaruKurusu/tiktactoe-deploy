@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "motion/react";
+import { motion } from 'framer-motion';
 import "./Login.css";
+import bg from '../assets/loginBG.jpg';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -15,13 +16,16 @@ const Login = () => {
     const endpoint = isRegistering ? "/register" : "/login";
 
     try {
-      const response = await fetch(`https://hikarukurusu.pythonanywhere.com/${endpoint}`, {
-        method: 'POST',
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ username, password }),
-      });
+      const response = await fetch(
+        `https://hikarukurusu.pythonanywhere.com/${endpoint}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ username, password }),
+        }
+      );
 
       const data = await response.json();
 
@@ -40,54 +44,101 @@ const Login = () => {
   };
 
   return (
-    <div className="login">
-      <div class="login-content">
-        <h1>{isRegistering ? "Register" : "Login"}</h1>
-        <h2 className="sub-heading">
-          {isRegistering
-            ? "Create a new account to get started."
-            : "Sign in to continue."}
-        </h2>
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label>Username:</label>
-            <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-            />
-          </div>
-          <div className="form-group">
-            <label>Password:</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </div>
-          <button type="submit">{isRegistering ? "Register" : "Login"}</button>
-        </form>
-        <p>
-          {isRegistering
-            ? "Already have an account?"
-            : "Don't have an account?"}{" "}
-          <span
-            style={{ color: "blue", cursor: "pointer" }}
-            onClick={() => setIsRegistering(!isRegistering)}
-          >
-            {isRegistering ? "Login here" : "Register here"}
-          </span>
-        </p>
-        {message && (
-          <p
-            className={`message ${
-              message.includes("error") ? "error" : "success"
-            }`}
-          >
-            {message}
+    <div style={{ overflow: "hidden", height: "100vh" }}>
+      {/* Background Image Motion */}
+      <motion.div
+        initial={{ x: -2000 }}
+        animate={{ x: 0 }}
+        transition={{ duration: 1 }}
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          backgroundImage: `url(${bg})`,
+          backgroundSize: "cover",
+          backgroundRepeat: "no-repeat",
+          backgroundPosition: "center",
+          zIndex: -1,
+        }}
+      ></motion.div>
+
+      <motion.div
+       initial={{ x: "-100%", y: "-100%" }} // Starts off-screen
+       animate={{ x: "0%", y: "60%" }} // Moves to the center
+        className="title2"
+      >
+        <span >T</span>
+        <span className="middle-letter">I</span>
+        <span >C</span>&nbsp;
+
+        <span >T</span>
+        <span className="middle-letter">A</span>
+        <span >C </span>&nbsp;
+
+        <span >T</span>
+        <span className="middle-letter">O</span>
+        <span >E</span>
+
+       
+      
+      </motion.div>
+
+      {/* Login Form */}
+      <motion.div
+        initial={{ x: -500 }}
+        animate={{ x: 0, scale: 1, transition: { duration: 1 } }}
+        className="login"
+      >
+        <div className="login-content">
+          <h1>{isRegistering ? "Register" : "Login"}</h1>
+          <h2 className="sub-heading">
+            {isRegistering
+              ? "Create a new account to get started."
+              : "Sign in to continue."}
+          </h2>
+          <form onSubmit={handleSubmit}>
+            <div className="form-group">
+              <label>Username:</label>
+              <input
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+              />
+            </div>
+            <div className="form-group">
+              <label>Password:</label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
+            <button type="submit">{isRegistering ? "Register" : "Login"}</button>
+          </form>
+          <p>
+            {isRegistering
+              ? "Already have an account?"
+              : "Don't have an account?"}{" "}
+            <span
+              style={{ color: "blue", cursor: "pointer" }}
+              onClick={() => setIsRegistering(!isRegistering)}
+            >
+              {isRegistering ? "Login here" : "Register here"}
+            </span>
           </p>
-        )}
-      </div>
+          {message && (
+            <p
+              className={`message ${
+                message.includes("error") ? "error" : "success"
+              }`}
+            >
+              {message}
+            </p>
+          )}
+        </div>
+      </motion.div>
     </div>
   );
 };
