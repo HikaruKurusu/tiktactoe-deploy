@@ -34,9 +34,12 @@ const Login = () => {
         setMessage(`${isRegistering ? 'Registration' : 'Login'} successful!`);
         
         // Save userID in localStorage
-        const username = data.username; // Extract userID from response
-        localStorage.setItem('username', username); // Store userID in local storage
-
+        const userID = data.id; // Extract userID from response
+        const storedUserID = localStorage.getItem('userID');
+        if (storedUserID) {
+          console.log('Stored userID:', storedUserID);
+        }
+        localStorage.setItem('userID', userID); // Store userID in local storage
         // Redirect to search page after login
         if (!isRegistering) {
           navigate('/search'); 
