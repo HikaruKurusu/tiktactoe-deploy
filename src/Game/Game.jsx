@@ -1,12 +1,34 @@
-import React, { useState } from 'react';
-import './Game.css';
+import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
+import { io } from 'socket.io-client';
+
+const socket = io('http://127.0.0.1:5000'); // Update with your server's address
+
 const Game = () => {
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const room = queryParams.get('room');
   const [board, setBoard] = useState(Array(9).fill(null)); // Game board (9 squares)
   const [isXNext, setIsXNext] = useState(true); // Determine if it's X or O's turn
   const [winner, setWinner] = useState(null); // Winner state
 
-  // Check for a winner
-  const calculateWinner = (squares) => {
+  // Handle the game logic and WebSocket communication
+  useEffect(() => {
+    socket.emit('join_room', { room });
+
+    socket.on('game_update', (data) => {
+      setBoard(data.board);
+      setIsXNext(data.isXNext);
+      checkWinner(data.board);
+    });
+
+    return () => {
+      socket.emit('leave_room', { room });
+    };
+  }, [room]);
+
+  const checkWinner = (newBoard) => {
+    // Check all possible winning combinations
     const lines = [
       [0, 1, 2],
       [3, 4, 5],
@@ -20,40 +42,35 @@ const Game = () => {
 
     for (let i = 0; i < lines.length; i++) {
       const [a, b, c] = lines[i];
-      if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-        return squares[a]; // Return 'X' or 'O'
+      if (newBoard[a] && newBoard[a] === newBoard[b] && newBoard[a] === newBoard[c]) {
+        setWinner(newBoard[a]);
+        return;
       }
     }
-    return null;
   };
 
-  // Handle a square click
   const handleClick = (index) => {
     if (board[index] || winner) return; // Prevent clicking if square is filled or there's a winner
 
-    const newBoard = board.slice(); // Copy the board
-    newBoard[index] = isXNext ? 'X' : 'O'; // Set the current player's mark (X or O)
-    setBoard(newBoard); // Update the board
-    setIsXNext(!isXNext); // Switch to the next player
+    const newBoard = board.slice();
+    newBoard[index] = isXNext ? 'X' : 'O';
+    setBoard(newBoard);
+    setIsXNext(!isXNext);
 
-    const currentWinner = calculateWinner(newBoard);
-    if (currentWinner) {
-      setWinner(currentWinner); // Set winner if there's one
-    }
+    // Emit the updated board to the opponent
+    socket.emit('update_board', { room, board: newBoard, isXNext: !isXNext });
+    checkWinner(newBoard);
   };
 
-  // Render the Tic Tac Toe board
-  const renderSquare = (index) => {
-    return (
-      <button className="square" onClick={() => handleClick(index)}>
-        {board[index]}
-      </button>
-    );
-  };
+  const renderSquare = (index) => (
+    <button className="square" onClick={() => handleClick(index)}>
+      {board[index]}
+    </button>
+  );
 
   return (
     <div className="game-container">
-      <h1>Welcome to the Tic Tac Toe Game!</h1>
+      <h1>Game Room: {room}</h1>
       <div>
         {winner ? <h2>{winner} Wins!</h2> : <h2>Next player: {isXNext ? 'X' : 'O'}</h2>}
       </div>

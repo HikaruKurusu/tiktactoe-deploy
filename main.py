@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS
+from flask_socketio import SocketIO, join_room, leave_room, emit
 
 app = Flask(__name__)
 CORS(app)  # Allow requests from all origins
@@ -10,7 +11,8 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
-# 
+socketio = SocketIO(app, cors_allowed_origins="*")  # Allow Socket.IO connections from all origins
+
 # Models
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -20,6 +22,9 @@ class User(db.Model):
 # Create the database tables
 with app.app_context():
     db.create_all()
+
+# Global variable to track waiting players
+waiting_players = []
 
 @app.route('/', methods=['GET'])
 def hello_world():
@@ -66,19 +71,24 @@ def register():
     
     return jsonify({'message': 'User registered successfully'}), 201
 
-with app.app_context():
-    db.create_all()
-
-    # Add a default test user if no user exists
-    user = User.query.filter_by(username='testuser').first()
-    if not user:
-        hashed_password = bcrypt.generate_password_hash('password123').decode('utf-8')
-        new_user = User(username='testuser', password=hashed_password)
-        db.session.add(new_user)
-        db.session.commit()
-        print("Test user added successfully!")
+# Socket.IO events for matchmaking and gameplay
+@socketio.on('search_for_opponent')
+def handle_search_for_opponent(data):
+    username = data['username']
+    
+    if len(waiting_players) > 0:
+        opponent = waiting_players.pop()  # Match with the first player in the waiting list
+        room_name = f"game_{username}_{opponent}"
+        join_room(room_name)
+        emit('game_found', {'room': room_name, 'opponent': opponent}, to=room_name)
     else:
-        print("Test user already exists.")
+        waiting_players.append(username)  # Add current user to waiting list
+
+@socketio.on('disconnect')
+def handle_disconnect():
+    username = request.sid
+    if username in waiting_players:
+        waiting_players.remove(username)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    socketio.run(app, debug=True)
