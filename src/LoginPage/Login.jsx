@@ -18,7 +18,7 @@ const Login = () => {
 
     try {
       const response = await fetch(
-        `https://hikarukurusu.pythonanywhere.com/${endpoint}`,
+        `http://127.0.0.1:5000/${endpoint}`,
         {
           method: "POST",
           headers: {

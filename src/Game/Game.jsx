@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { io } from 'socket.io-client';
 import './Game.css';
 
-const socket = io('https://hikarukurusu.pythonanywhere.com/'); // Update with your server's address
+const socket = io('http://127.0.0.1:5000/'); // Update with your server's address
 
 const Game = () => {
   const location = useLocation();
