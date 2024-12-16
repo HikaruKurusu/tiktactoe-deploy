@@ -53,8 +53,6 @@ const Game = () => {
 
   const handleClick = (index) => {
     if (board[index] || winner || (role === 'X' && !isXNext) || (role === 'O' && isXNext)) return; // Prevent clicking if square is filled or there's a winner
-    console.log(role);
-    console.log(isXNext);
     const newBoard = board.slice();
     newBoard[index] = isXNext ? 'X' : 'O';
     setBoard(newBoard);
