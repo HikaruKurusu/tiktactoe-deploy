@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "motion/react";
 import "./Login.css";
+import bg from ".//assets/loginBG.jpg";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -15,13 +16,16 @@ const Login = () => {
     const endpoint = isRegistering ? "/register" : "/login";
 
     try {
-      const response = await fetch(`https://hikarukurusu.pythonanywhere.com/${endpoint}`, {
-        method: 'POST',
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ username, password }),
-      });
+      const response = await fetch(
+        `https://hikarukurusu.pythonanywhere.com/${endpoint}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ username, password }),
+        }
+      );
 
       const data = await response.json();
 
@@ -40,7 +44,11 @@ const Login = () => {
   };
 
   return (
-    <div className="login">
+    <motion.div
+      initial={{ x: -500 }}
+      animate={{ x:0, scale: 1, transition: { duration: 1 } }}
+      className="login"
+    >
       <div class="login-content">
         <h1>{isRegistering ? "Register" : "Login"}</h1>
         <h2 className="sub-heading">
@@ -88,7 +96,7 @@ const Login = () => {
           </p>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 };
 
