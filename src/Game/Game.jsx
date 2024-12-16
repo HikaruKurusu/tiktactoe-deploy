@@ -81,7 +81,7 @@ const Game = () => {
         setTimeout(() => {
           resetBoard();
           socket.emit('game_over', { room });
-        }, 3000); // Wait 5 seconds before resetting the board
+        }, 3000); // Wait 3 seconds before resetting the board
         
         return;
       }
