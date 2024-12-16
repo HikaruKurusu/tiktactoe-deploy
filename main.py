@@ -18,7 +18,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     password = db.Column(db.String(128), nullable=False)
-
+    wins = db.Column(db.Integer, default=0)
 # Create the database tables
 with app.app_context():
     db.create_all()
@@ -116,6 +116,36 @@ def handle_disconnect():
     username = request.sid
     if username in waiting_players:
         waiting_players.remove(username)
+
+@app.route('/api/user/<username>/points', methods=['GET'])
+def get_user_points(username):
+    user = User.query.filter_by(username=username).first()
+
+    if user is None:
+        return jsonify({'message': 'User not found'}), 404
+    
+    return jsonify({'username': user.username, 'points': user.points})
+
+# New API to set/update points of a user
+@app.route('/api/user/<username>/points', methods=['POST'])
+def set_user_points(username):
+    user = User.query.filter_by(username=username).first()
+
+    if user is None:
+        return jsonify({'message': 'User not found'}), 404
+    
+    # Get the points to set from the request body
+    new_points = request.json.get('points')
+    
+    if new_points is None or not isinstance(new_points, int):
+        return jsonify({'message': 'Invalid points value'}), 400
+    
+    # Update the points
+    user.points = new_points
+    db.session.commit()
+
+    return jsonify({'username': user.username, 'points': user.points})
+
 
 if __name__ == '__main__':
     socketio.run(app, debug=True)
