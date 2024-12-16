@@ -6,15 +6,15 @@ import bg from '../assets/loginBG.jpg';
 
 const Login = () => {
   const navigate = useNavigate();
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [message, setMessage] = useState("");
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [message, setMessage] = useState('');
   const [isRegistering, setIsRegistering] = useState(false);
 
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    const endpoint = isRegistering ? "/register" : "/login";
+    const endpoint = isRegistering ? '/register' : '/login';
 
     try {
       const response = await fetch(
@@ -31,16 +31,22 @@ const Login = () => {
       const data = await response.json();
 
       if (response.ok) {
-        setMessage(`${isRegistering ? "Registration" : "Login"} successful!`);
+        setMessage(`${isRegistering ? 'Registration' : 'Login'} successful!`);
+        
+        // Save userID in localStorage
+        const userID = data.id; // Extract userID from response
+        localStorage.setItem('userID', userID); // Store userID in local storage
+
+        // Redirect to search page after login
         if (!isRegistering) {
-          navigate("/search"); // Redirect only after login
+          navigate('/search'); 
         }
       } else {
-        setMessage(data.message || "An error occurred.");
+        setMessage(data.message || 'An error occurred.');
       }
     } catch (error) {
-      console.error("Error:", error);
-      setMessage("An error occurred. Please try again.");
+      console.error('Error:', error);
+      setMessage('An error occurred. Please try again.');
     }
   };
 

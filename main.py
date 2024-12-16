@@ -30,6 +30,18 @@ waiting_players = []
 def hello_world():
     return "Hello, World!"
 
+@app.route('/get_username_by_id', methods=['POST'])
+def get_username_by_id():
+    data = request.json
+    userID = data.get('userID')
+    user = User.query.filter_by(id=userID).first()
+
+    if user:
+        return jsonify({'username': user.username}), 200
+    else:
+        return jsonify({'message': 'User not found'}), 404
+
+
 @app.route('/login', methods=['POST'])
 def login():
     data = request.json
@@ -41,7 +53,7 @@ def login():
 
     user = User.query.filter_by(username=username).first()
     if user and bcrypt.check_password_hash(user.password, password):
-        return jsonify({'message': 'Login successful'}), 200
+        return jsonify({'id': user.id, 'message': 'Login successful'}), 200
     return jsonify({'message': 'Invalid username or password'}), 401
 
 @app.route('/register', methods=['POST'])
@@ -72,44 +84,34 @@ def register():
     return jsonify({'message': 'User registered successfully'}), 201
 
 # Socket.IO events for matchmaking and gameplay
-@socketio.on('search_for_opponent')
+@socketio.on('search_for_opponent_by_id')
 def handle_search_for_opponent(data):
-    username = data['username']
-    
+    user_id = data['userID']
+
+    # Fetch user details
+    user = User.query.get(user_id)
+    if not user:
+        emit('error', {'message': 'User not found'}, to=request.sid)
+        return
+
+    username = user.username
+
     if len(waiting_players) > 0:
-        temp = waiting_players.pop()
-        opponent = temp[0]  # Match with the first player in the waiting list
-        room_name = f"game_{username}_{opponent}"
+        opponent = waiting_players.pop()
+        opponent_id, opponent_sid, opponent_username = opponent
+        room_name = f"game_{user_id}_{opponent_id}"
         join_room(room_name)
-        emit('game_found', {'room': room_name, 'opponent': opponent, 'role': 'O'}, to=request.sid)
-        emit('game_found', {'room': room_name, 'opponent': username, 'role': 'X'}, to=temp[1])
-    else:
-        waiting_players.append([username, request.sid])  # Add current user to waiting list
 
-@socketio.on('update_board')
-def handle_update_board(data):
-    room = data['room']
-    board = data['board']
-    isXNext = data['isXNext']
-    
-    # Check if the room exists
-    if room in socketio.server.manager.rooms['/']:
-        # Get the list of clients in the room
-        clients = socketio.server.manager.rooms['/'][room]
-        print(f"Clients in room {room}: {clients}")
-        
-        # Emit the updated board to all clients in the room except the sender
-        for sid in clients:
-            if sid != request.sid:
-                emit('game_update', {'board': board, 'isXNext': isXNext}, room=sid)
-    else:
-        print(f"Room {room} does not exist")
+        # Notify both players of the match and opponent details
+        emit('game_found', {'room': room_name, 'opponent': opponent_username}, to=request.sid)
+        emit('game_found', {'room': room_name, 'opponent': username}, to=opponent_sid)
 
-@socketio.on('join_room')
-def handle_join_room(data):
-    room = data['room']
-    join_room(room)
-    print(f"Client {request.sid} joined room {room}")
+        # Emit opponent information to both players
+        emit('opponent_info', {'opponent': opponent_username}, to=request.sid)
+        emit('opponent_info', {'opponent': username}, to=opponent_sid)
+    else:
+        waiting_players.append((user_id, request.sid, username))  # Add current user to the queue
+
 
 @socketio.on('disconnect')
 def handle_disconnect():

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { io } from 'socket.io-client';
-import game from './Game.css';
+import './Game.css';
 
 const socket = io('http://127.0.0.1:5000'); // Update with your server's address
 
@@ -13,6 +13,7 @@ const Game = () => {
   const [board, setBoard] = useState(Array(9).fill(null)); // Game board (9 squares)
   const [isXNext, setIsXNext] = useState(true); // Determine if it's X or O's turn
   const [winner, setWinner] = useState(null); // Winner state
+  const [opponent, setOpponent] = useState(''); // Opponent's username
 
   // Handle the game logic and WebSocket communication
   useEffect(() => {
@@ -24,8 +25,15 @@ const Game = () => {
       checkWinner(data.board);
     });
 
+    // Listen for the opponent's username
+    socket.on('opponent_info', (data) => {
+      setOpponent(data.opponent);
+    });
+
     return () => {
       socket.emit('leave_room', { room });
+      socket.off('game_update');
+      socket.off('opponent_info'); // Clean up the listener
     };
   }, [room]);
 
@@ -72,6 +80,7 @@ const Game = () => {
   return (
     <div className="game-container">
       <h1>Game Room: {room}</h1>
+      <h2>Opponent: {opponent}</h2>
       <div>
         {winner ? <h2>{winner} Wins!</h2> : <h2>Next player: {isXNext ? 'X' : 'O'}</h2>}
       </div>
