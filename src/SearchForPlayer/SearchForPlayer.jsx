@@ -21,7 +21,7 @@ function SearchForPlayer() {
       console.log('Game found:', data);
       setOpponent(data.opponent);
       setRoom(data.room);
-      window.location.href = `/game?room=${data.room}`;  // Redirect to the game board
+      window.location.href = `/game?room=${data.room}&role=${data.role}`;  // Redirect to the game board
     });
   };
 
