@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { io } from 'socket.io-client';
 
 const socket = io('http://127.0.0.1:5000');
@@ -8,18 +9,35 @@ function SearchForPlayer() {
   const [opponent, setOpponent] = useState(null);
   const [waiting, setWaiting] = useState(false); // Track if Player is waiting for an opponent
   const [room, setRoom] = useState(null); // Store the room once the game starts
+  const location = useLocation();
 
   // Retrieve username and fetch the username from localStorage
   useEffect(() => {
-    const storedUsername = localStorage.getItem('username');
-    if (storedUsername) {
-      setUsername(storedUsername); // Set username from localStorage
+    const storedUserID = localStorage.getItem('userID');
+    if (storedUserID) {
+      setUserID(storedUserID); // Set userID from localStorage
+      
+      // Fetch username from the backend using userID
+      fetch('http://127.0.0.1:5000/get_username_by_id', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userID: storedUserID }),
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.username) {
+          setUsername(data.username); // Set username from the backend response
+        }
+      })
+      .catch(error => console.error('Error fetching username:', error));
     }
   }, []);
 
   // Handle searching for an opponent
   const handleSearch = () => {
-    if (!username) return; // Prevent empty username
+    if (!userID) return; // Prevent empty userID
 
     setWaiting(true);
     socket.emit('search_for_opponent_by_username', { username });
@@ -29,7 +47,7 @@ function SearchForPlayer() {
       console.log('Game found:', data);
       setOpponent(data.opponent);
       setRoom(data.room);
-      window.location.href = `/game?room=${data.room}&role=${data.role}`;  // Redirect to the game board
+      window.location.href = `/game?room=${data.room}&role=${data.role}&wins=${data.wins}&opponent_wins=${data.opponent_wins}&username=${data.username}`;  // Redirect to the game board
     });
   };
 
