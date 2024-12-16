@@ -21,6 +21,10 @@ class User(db.Model):
 with app.app_context():
     db.create_all()
 
+@app.route('/', methods=['GET'])
+def hello_world():
+    return "Hello, World!"
+
 @app.route('/login', methods=['POST'])
 def login():
     data = request.json
