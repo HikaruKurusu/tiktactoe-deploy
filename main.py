@@ -86,6 +86,31 @@ def handle_search_for_opponent(data):
     else:
         waiting_players.append([username, request.sid])  # Add current user to waiting list
 
+@socketio.on('update_board')
+def handle_update_board(data):
+    room = data['room']
+    board = data['board']
+    isXNext = data['isXNext']
+    
+    # Check if the room exists
+    if room in socketio.server.manager.rooms['/']:
+        # Get the list of clients in the room
+        clients = socketio.server.manager.rooms['/'][room]
+        print(f"Clients in room {room}: {clients}")
+        
+        # Emit the updated board to all clients in the room except the sender
+        for sid in clients:
+            if sid != request.sid:
+                emit('game_update', {'board': board, 'isXNext': isXNext}, room=sid)
+    else:
+        print(f"Room {room} does not exist")
+
+@socketio.on('join_room')
+def handle_join_room(data):
+    room = data['room']
+    join_room(room)
+    print(f"Client {request.sid} joined room {room}")
+
 @socketio.on('disconnect')
 def handle_disconnect():
     username = request.sid
