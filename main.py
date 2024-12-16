@@ -77,12 +77,14 @@ def handle_search_for_opponent(data):
     username = data['username']
     
     if len(waiting_players) > 0:
-        opponent = waiting_players.pop()  # Match with the first player in the waiting list
+        temp = waiting_players.pop()
+        opponent = temp[0]  # Match with the first player in the waiting list
         room_name = f"game_{username}_{opponent}"
         join_room(room_name)
-        emit('game_found', {'room': room_name, 'opponent': opponent}, to=room_name)
+        emit('game_found', {'room': room_name, 'opponent': opponent}, to=request.sid)
+        emit('game_found', {'room': room_name, 'opponent': username}, to=temp[1])
     else:
-        waiting_players.append(username)  # Add current user to waiting list
+        waiting_players.append([username, request.sid])  # Add current user to waiting list
 
 @socketio.on('disconnect')
 def handle_disconnect():
