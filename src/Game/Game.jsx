@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { io } from 'socket.io-client';
+import game from './Game.css';
 
 const socket = io('http://127.0.0.1:5000'); // Update with your server's address
 
