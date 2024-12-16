@@ -11,6 +11,7 @@ const Login = () => {
   const [message, setMessage] = useState("");
   const [isRegistering, setIsRegistering] = useState(false);
 
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     const endpoint = isRegistering ? "/register" : "/login";
@@ -41,6 +42,17 @@ const Login = () => {
       console.error("Error:", error);
       setMessage("An error occurred. Please try again.");
     }
+  };
+
+  const containerVariants = {
+    initial: { x: -500}, // Animation when the page loads
+    login: { x: 0, scale: 1, transition: { duration: 1 }}, // Default login view
+    register: {
+      scale:[1, 0, 1], // Shrink down to scale 0, then back to scale 1
+      opacity: 1,
+      x: 0,
+      transition: { duration: 1, ease: "easeInOut" },
+    },
   };
 
   return (
@@ -87,9 +99,14 @@ const Login = () => {
 
       {/* Login Form */}
       <motion.div
-        initial={{ x: -500 }}
-        animate={{ x: 0, scale: 1, transition: { duration: 1 } }}
+        initial="initial"
+        variants={containerVariants}
+        animate={isRegistering ? "register" : "login"} 
+     
         className="login"
+        style={{
+          transformOrigin: "center", // Scale animation originates from the center
+        }}
       >
         <div className="login-content">
           <h1>{isRegistering ? "Register" : "Login"}</h1>
@@ -123,7 +140,10 @@ const Login = () => {
               : "Don't have an account?"}{" "}
             <span
               style={{ color: "blue", cursor: "pointer" }}
-              onClick={() => setIsRegistering(!isRegistering)}
+              onClick={() => {
+                setIsRegistering(!isRegistering);
+             
+              }}
             >
               {isRegistering ? "Login here" : "Register here"}
             </span>
