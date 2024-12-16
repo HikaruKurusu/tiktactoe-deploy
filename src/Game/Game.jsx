@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { io } from 'socket.io-client';
-import game from './Game.css';
+import './Game.css';
 
 const socket = io('http://127.0.0.1:5000'); // Update with your server's address
 
@@ -9,6 +9,7 @@ const Game = () => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const room = queryParams.get('room');
+  const role = queryParams.get('role');
   const [board, setBoard] = useState(Array(9).fill(null)); // Game board (9 squares)
   const [isXNext, setIsXNext] = useState(true); // Determine if it's X or O's turn
   const [winner, setWinner] = useState(null); // Winner state
@@ -31,6 +32,8 @@ const Game = () => {
 
     return () => {
       socket.emit('leave_room', { room });
+      socket.off('game_update');
+      socket.off('opponent_info'); // Clean up the listener
     };
   }, [room]);
 
@@ -57,8 +60,7 @@ const Game = () => {
   };
 
   const handleClick = (index) => {
-    if (board[index] || winner) return; // Prevent clicking if square is filled or there's a winner
-
+    if (board[index] || winner || (role === 'X' && !isXNext) || (role === 'O' && isXNext)) return; // Prevent clicking if square is filled or there's a winner
     const newBoard = board.slice();
     newBoard[index] = isXNext ? 'X' : 'O';
     setBoard(newBoard);
@@ -77,7 +79,8 @@ const Game = () => {
 
   return (
     <div className="game-container">
-      <h1>Opponent: {opponent}</h1>
+      <h1>Game Room: {room}</h1>
+      <h2>Opponent: {opponent}</h2>
       <div>
         {winner ? <h2>{winner} Wins!</h2> : <h2>Next player: {isXNext ? 'X' : 'O'}</h2>}
       </div>

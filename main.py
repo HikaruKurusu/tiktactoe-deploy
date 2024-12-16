@@ -18,7 +18,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     password = db.Column(db.String(128), nullable=False)
-    wins = db.Column(db.Integer, default=0)
+
 # Create the database tables
 with app.app_context():
     db.create_all()
@@ -85,10 +85,11 @@ def register():
 
 # Socket.IO events for matchmaking and gameplay
 @socketio.on('search_for_opponent_by_id')
-def handle_search_for_opponent_by_id(data):
+def handle_search_for_opponent(data):
     user_id = data['userID']
 
-    user = User.query.get(user_id)  # Retrieve user by ID
+    # Fetch user details
+    user = User.query.get(user_id)
     if not user:
         emit('error', {'message': 'User not found'}, to=request.sid)
         return
@@ -101,74 +102,22 @@ def handle_search_for_opponent_by_id(data):
         room_name = f"game_{user_id}_{opponent_id}"
         join_room(room_name)
 
-        # Notify both players of the match
+        # Notify both players of the match and opponent details
         emit('game_found', {'room': room_name, 'opponent': opponent_username}, to=request.sid)
         emit('game_found', {'room': room_name, 'opponent': username}, to=opponent_sid)
+
+        # Emit opponent information to both players
+        emit('opponent_info', {'opponent': opponent_username}, to=request.sid)
+        emit('opponent_info', {'opponent': username}, to=opponent_sid)
     else:
-        waiting_players.append((user_id, request.sid, username))  # Add user to the queue
+        waiting_players.append((user_id, request.sid, username))  # Add current user to the queue
 
-
-
-@socketio.on('update_board')
-def handle_update_board(data):
-    room = data['room']
-    board = data['board']
-    isXNext = data['isXNext']
-    
-    # Check if the room exists
-    if room in socketio.server.manager.rooms['/']:
-        # Get the list of clients in the room
-        clients = socketio.server.manager.rooms['/'][room]
-        print(f"Clients in room {room}: {clients}")
-        
-        # Emit the updated board to all clients in the room except the sender
-        for sid in clients:
-            if sid != request.sid:
-                emit('game_update', {'board': board, 'isXNext': isXNext}, room=sid)
-    else:
-        print(f"Room {room} does not exist")
-
-@socketio.on('join_room')
-def handle_join_room(data):
-    room = data['room']
-    join_room(room)
-    print(f"Client {request.sid} joined room {room}")
 
 @socketio.on('disconnect')
 def handle_disconnect():
     username = request.sid
     if username in waiting_players:
         waiting_players.remove(username)
-
-@app.route('/api/user/<username>/points', methods=['GET'])
-def get_user_points(username):
-    user = User.query.filter_by(username=username).first()
-
-    if user is None:
-        return jsonify({'message': 'User not found'}), 404
-    
-    return jsonify({'username': user.username, 'points': user.points})
-
-# New API to set/update points of a user
-@app.route('/api/user/<username>/points', methods=['POST'])
-def set_user_points(username):
-    user = User.query.filter_by(username=username).first()
-
-    if user is None:
-        return jsonify({'message': 'User not found'}), 404
-    
-    # Get the points to set from the request body
-    new_points = request.json.get('points')
-    
-    if new_points is None or not isinstance(new_points, int):
-        return jsonify({'message': 'Invalid points value'}), 400
-    
-    # Update the points
-    user.points = new_points
-    db.session.commit()
-
-    return jsonify({'username': user.username, 'points': user.points})
-
 
 if __name__ == '__main__':
     socketio.run(app, debug=True)
