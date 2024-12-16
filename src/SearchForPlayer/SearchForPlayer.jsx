@@ -5,15 +5,17 @@ import { io } from 'socket.io-client';
 const socket = io('http://127.0.0.1:5000');
 
 function SearchForPlayer() {
+  const [userID, setUserID] = useState('');
   const [username, setUsername] = useState(''); // To display the username
   const [opponent, setOpponent] = useState(null);
   const [waiting, setWaiting] = useState(false); // Track if Player is waiting for an opponent
   const [room, setRoom] = useState(null); // Store the room once the game starts
   const location = useLocation();
 
-  // Retrieve username and fetch the username from localStorage
+  // Retrieve userID from localStorage and fetch the username
   useEffect(() => {
-    const storedUserID = localStorage.getItem('userID');
+    const stateUserID = location.state?.userID;
+    const storedUserID = stateUserID || localStorage.getItem('userID');
     if (storedUserID) {
       setUserID(storedUserID); // Set userID from localStorage
       
@@ -38,9 +40,9 @@ function SearchForPlayer() {
   // Handle searching for an opponent
   const handleSearch = () => {
     if (!userID) return; // Prevent empty userID
-
+    console.log(userID)
     setWaiting(true);
-    socket.emit('search_for_opponent_by_username', { username });
+    socket.emit('search_for_opponent_by_id', { userID });
 
     // Listen for the game match response
     socket.on('game_found', (data) => {
