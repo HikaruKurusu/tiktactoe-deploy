@@ -4,42 +4,25 @@ import { io } from 'socket.io-client';
 const socket = io('http://127.0.0.1:5000');
 
 function SearchForPlayer() {
-  const [userID, setUserID] = useState('');
   const [username, setUsername] = useState(''); // To display the username
   const [opponent, setOpponent] = useState(null);
   const [waiting, setWaiting] = useState(false); // Track if Player is waiting for an opponent
   const [room, setRoom] = useState(null); // Store the room once the game starts
 
-  // Retrieve userID from localStorage and fetch the username
+  // Retrieve username and fetch the username from localStorage
   useEffect(() => {
-    const storedUserID = localStorage.getItem('userID');
-    if (storedUserID) {
-      setUserID(storedUserID); // Set userID from localStorage
-      
-      // Fetch username from the backend using userID
-      fetch('http://127.0.0.1:5000/get_username_by_id', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ userID: storedUserID }),
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.username) {
-          setUsername(data.username); // Set username from the backend response
-        }
-      })
-      .catch(error => console.error('Error fetching username:', error));
+    const storedUsername = localStorage.getItem('username');
+    if (storedUsername) {
+      setUsername(storedUsername); // Set username from localStorage
     }
   }, []);
 
   // Handle searching for an opponent
   const handleSearch = () => {
-    if (!userID) return; // Prevent empty userID
+    if (!username) return; // Prevent empty username
 
     setWaiting(true);
-    socket.emit('search_for_opponent_by_id', { userID });
+    socket.emit('search_for_opponent_by_username', { username });
 
     // Listen for the game match response
     socket.on('game_found', (data) => {

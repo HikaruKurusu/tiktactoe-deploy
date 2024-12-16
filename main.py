@@ -30,16 +30,16 @@ waiting_players = []
 def hello_world():
     return "Hello, World!"
 
-@app.route('/get_username_by_id', methods=['POST'])
-def get_username_by_id():
-    data = request.json
-    userID = data.get('userID')
-    user = User.query.filter_by(id=userID).first()
+# @app.route('/get_username_by_id', methods=['POST'])
+# def get_username_by_id():
+#     data = request.json
+#     userID = data.get('userID')
+#     user = User.query.filter_by(id=userID).first()
 
-    if user:
-        return jsonify({'username': user.username}), 200
-    else:
-        return jsonify({'message': 'User not found'}), 404
+#     if user:
+#         return jsonify({'username': user.username}), 200
+#     else:
+#         return jsonify({'message': 'User not found'}), 404
 
 
 @app.route('/login', methods=['POST'])
@@ -53,7 +53,7 @@ def login():
 
     user = User.query.filter_by(username=username).first()
     if user and bcrypt.check_password_hash(user.password, password):
-        return jsonify({'id': user.id, 'message': 'Login successful'}), 200
+        return jsonify({'username': user.username, 'message': 'Login successful'}), 200
     return jsonify({'message': 'Invalid username or password'}), 401
 
 @app.route('/register', methods=['POST'])
@@ -84,17 +84,17 @@ def register():
     return jsonify({'message': 'User registered successfully'}), 201
 
 # Socket.IO events for matchmaking and gameplay
-@socketio.on('search_for_opponent_by_id')
+@socketio.on('search_for_opponent_by_username')
 def handle_search_for_opponent(data):
-    user_id = data['userID']
+    username = data['username']
 
     # Fetch user details
-    user = User.query.get(user_id)
+    user = User.query.filter_by(username=username).first()
     if not user:
         emit('error', {'message': 'User not found'}, to=request.sid)
         return
 
-    username = user.username
+    user_id = user.id
 
     if len(waiting_players) > 0:
         opponent = waiting_players.pop()
@@ -111,6 +111,7 @@ def handle_search_for_opponent(data):
         emit('opponent_info', {'opponent': username}, to=opponent_sid)
     else:
         waiting_players.append((user_id, request.sid, username))  # Add current user to the queue
+
 
 
 @socketio.on('disconnect')
