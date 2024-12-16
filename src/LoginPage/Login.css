@@ -20,21 +20,41 @@
   .login {
     background-color: white;
     padding: 30px;
-    border-radius: 8px;
+    border-radius: 20px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width: 400px;
-    max-width: 700px;
+    width:80% ;
+ 
+    height: 70vh;
     text-align: center;
     display: flex;
     flex-direction: column;
     align-items: center;
   }
   
+  .login-content {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+  
+
   /* Login Header */
   .login h1 {
     font-size: 24px;
     color: #333;
-    margin-bottom: 20px;
+ 
+    margin-top: 10%;
+    text-align: left;
+
+  }
+
+  .login .sub-heading {
+    font-size: 14px; 
+    color: #666;
+    margin-top: 10px; 
+    margin-bottom: 20px; 
+    text-align: left; 
+    margin-bottom: 40%;
   }
   
   /* Form Group */
@@ -76,6 +96,7 @@
     font-size: 16px;
     cursor: pointer;
     transition: background-color 0.3s ease;
+    margin-top: 15%;
   }
   
   .login button:hover {
