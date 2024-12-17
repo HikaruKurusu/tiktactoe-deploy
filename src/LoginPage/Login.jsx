@@ -18,7 +18,7 @@ const Login = () => {
 
     try {
       const response = await fetch(
-        `https://hikarukurusu.pythonanywhere.com/${endpoint}`,
+        `https://git.heroku.com/tictactoe-diploy.git/${endpoint}`,
         {
           method: "POST",
           headers: {
