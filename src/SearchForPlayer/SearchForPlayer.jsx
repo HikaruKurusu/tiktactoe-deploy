@@ -20,7 +20,7 @@ function SearchForPlayer() {
       setUserID(storedUserID); // Set userID from localStorage
       
       // Fetch username from the backend using userID
-      fetch('https://hikarukurusu.pythonanywhere.com/get_username_by_id', {
+      fetch('https://hikarukurusu.pythonanywhere.com//get_username_by_id', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
