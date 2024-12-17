@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { io } from 'socket.io-client';
 
-const socket = io('https://hikarukurusu.pythonanywhere.com/');
+const socket = io('https://tictactoe-diploy-05886fe74dd8.herokuapp.com/');
 
 function SearchForPlayer() {
   const [userID, setUserID] = useState('');
@@ -20,7 +20,7 @@ function SearchForPlayer() {
       setUserID(storedUserID); // Set userID from localStorage
       
       // Fetch username from the backend using userID
-      fetch('https://hikarukurusu.pythonanywhere.com//get_username_by_id', {
+      fetch('https://tictactoe-diploy-05886fe74dd8.herokuapp.com/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
