@@ -4,7 +4,7 @@ import { io } from "socket.io-client";
 
 import "./SearchForPlayer.css";
 
-const socket = io("https://hikarukurusu.pythonanywhere.com//");
+const socket = io("https://hikarukurusu.pythonanywhere.com/");
 
 function SearchForPlayer() {
   const [userID, setUserID] = useState("");
