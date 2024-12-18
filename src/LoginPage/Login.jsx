@@ -18,7 +18,7 @@ const Login = () => {
 
     try {
       const response = await fetch(
-        `https://tictactoe-diploy-05886fe74dd8.herokuapp.com/${endpoint}`,
+        `http://127.0.0.1:5000/${endpoint}`,
         {
           method: "POST",
           headers: {
