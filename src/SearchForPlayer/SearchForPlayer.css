@@ -1,21 +1,62 @@
-/* Center container */
-.SearchForPlayer{
+.SearchForPlayer {
+  position: relative;
+  z-index: 0; /* Ensure background stays at the bottom */
+  height: 100vh; /* Ensure it takes up the full height of the viewport */
+  width: 200vh;
+}
 
+.SearchForPlayer .background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('../assets/loginBG.jpg');
+  background-size: cover; /* Ensure the background covers the whole screen */
+  background-repeat: no-repeat;
+  background-position: center;
+  z-index: -1; /* Keep the background behind everything else */
 }
 
 .SearchForPlayer .container {
-    display: flex;
-    justify-content: center; /* Center horizontally */
-    align-items: center; /* Center vertically */
-    height: 100vh; /* Full viewport height */
-    color: #000; /* Text color */
-  }
-  
-  /* White box styling */
-  .SearchForPlayer .box {
-    background-color: rgba(255, 255, 255, 0.9); /* White with slight transparency */
-    padding: 30px 50px;
-    border-radius: 10px;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2); /* Subtle shadow */
-    text-align: center;
-  }
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; /* Full height to center content */
+  color: #000;
+  position: relative; /* Make sure it's above the background */
+}
+
+.SearchForPlayer .box {
+  background-color: rgba(255, 255, 255, 0.9); 
+  padding: 30px 50px;
+  border-radius: 10px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  position: relative; /* Make the box a reference for absolute positioning */
+  display: flex;
+  flex-direction: column; /* Stack the content vertically */
+  justify-content: space-between; /* Space between the content */
+  height: 300px; /* Set a fixed height for the box */
+}
+
+.SearchForPlayer button {
+  z-index: 9999 !important;
+  position: relative;
+}
+
+.SearchForPlayer .loading-circle {
+  width: 50px;
+  height: 50px;
+  border: 6px solid #f3f3f3;
+  border-top: 6px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  align-self: center; /* Horizontally center the circle */
+  margin-bottom: 20px; /* Add space from the bottom */
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

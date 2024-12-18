@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from 'framer-motion';
+import styles from "./Login.module.css";
 import "./Login.css";
 import bg from '../assets/loginBG.jpg';
 
@@ -65,6 +66,7 @@ const Login = () => {
   };
 
   return (
+    <div className={styles.body}>
     <div style={{ overflow: "hidden", height: "100vh" }}>
       {/* Background Image Motion */}
       <motion.div
@@ -168,6 +170,7 @@ const Login = () => {
           )}
         </div>
       </motion.div>
+    </div>
     </div>
   );
 };

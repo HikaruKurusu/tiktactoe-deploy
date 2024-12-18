@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { io } from "socket.io-client";
-import bg from "../assets/loginBG.jpg";
+
 import "./SearchForPlayer.css";
 
 const socket = io("https://hikarukurusu.pythonanywhere.com/");
@@ -62,22 +62,10 @@ function SearchForPlayer() {
     };
   }, []);
 
-  const backgroundStyle = {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    width: "100%",
-    height: "100%",
-    backgroundImage: `url(${bg})`,
-    backgroundSize: "cover",
-    backgroundRepeat: "no-repeat",
-    backgroundPosition: "center",
-    zIndex: -1,
-  };
 
   return (
     <div className="SearchForPlayer">
-    <div style={backgroundStyle}>
+     <div className="background"></div>
     <div className="container">
     <div className="box">
     <h2>Search for an Opponent</h2>
@@ -87,12 +75,13 @@ function SearchForPlayer() {
         </button>
         {waiting && <p>Waiting for an opponent...</p>}
         {opponent && <p>Matched with: {opponent}</p>}
+        {waiting && <div className="loading-circle"></div>}
       </div>
     </div>
     </div>
 
 
-    </div>
+
   );
 }
 
