@@ -87,7 +87,7 @@ const Login = () => {
 
       <motion.div
        initial={{ x: "-100%", y: "-100%" }} // Starts off-screen
-       animate={{ x: "0%", y: "60%" }} // Moves to the center
+       animate={{ x: "0%", y: "200%" }} // Moves to the center
         className="title2"
       >
         <span >T</span>

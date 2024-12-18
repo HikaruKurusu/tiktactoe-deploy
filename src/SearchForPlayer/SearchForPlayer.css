@@ -1,0 +1,21 @@
+/* Center container */
+.SearchForPlayer{
+
+}
+
+.SearchForPlayer .container {
+    display: flex;
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+    height: 100vh; /* Full viewport height */
+    color: #000; /* Text color */
+  }
+  
+  /* White box styling */
+  .SearchForPlayer .box {
+    background-color: rgba(255, 255, 255, 0.9); /* White with slight transparency */
+    padding: 30px 50px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+    text-align: center;
+  }
